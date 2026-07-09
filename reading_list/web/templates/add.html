@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="add-form">
+    <h2>Add Entry</h2>
+    <form id="addForm">
+        <div class="form-group">
+            <label for="url">URL:</label>
+            <input type="url" id="url" name="url" required placeholder="https://example.com/article">
+        </div>
+        <button type="button" id="fetchBtn">Fetch</button>
+        <div id="loading" class="loading" style="display:none;">Loading...</div>
+        <div id="error" class="error" style="display:none;"></div>
+    </form>
+
+    <form id="saveForm" style="display:none;">
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="excerpt">Excerpt:</label>
+            <textarea id="excerpt" name="excerpt" rows="4" required></textarea>
+        </div>
+        <div class="form-actions">
+            <button type="submit">Save</button>
+            <button type="button" id="cancelBtn">Cancel</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('fetchBtn').addEventListener('click', async function() {
+    const url = document.getElementById('url').value;
+    if (!url) {
+        showError('Please enter a URL');
+        return;
+    }
+
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('error').style.display = 'none';
+
+    try {
+        const response = await fetch('/fetch', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: `url=${encodeURIComponent(url)}`
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Fetch failed');
+        }
+
+        const data = await response.json();
+        document.getElementById('title').value = data.title || '';
+        document.getElementById('excerpt').value = data.excerpt || '';
+        document.getElementById('addForm').style.display = 'none';
+        document.getElementById('saveForm').style.display = 'block';
+    } catch (err) {
+        showError(err.message);
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+    }
+});
+
+document.getElementById('cancelBtn').addEventListener('click', function() {
+    document.getElementById('addForm').style.display = 'block';
+    document.getElementById('saveForm').style.display = 'none';
+});
+
+document.getElementById('addForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const url = document.getElementById('url').value;
+    const title = document.getElementById('title').value;
+    const excerpt = document.getElementById('excerpt').value;
+
+    try {
+        const response = await fetch('/entries', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({url, title, excerpt})
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Failed to save');
+        }
+
+        window.location.href = '/';
+    } catch (err) {
+        showError(err.message);
+    }
+});
+
+function showError(msg) {
+    const errorDiv = document.getElementById('error');
+    errorDiv.textContent = msg;
+    errorDiv.style.display = 'block';
+}
+</script>
+{% endblock %}

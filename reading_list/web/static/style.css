@@ -1,0 +1,380 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #ffffff;
+    --bg-alt: #fafafa;
+    --text: #333333;
+    --text-muted: #666666;
+    --text-faint: #888888;
+    --border: #eeeeee;
+    --link: #0066cc;
+    --link-hover: #0052a3;
+    --accent: #0066cc;
+    --error: #d32f2f;
+    --tag-bg: #e8f0fe;
+    --tag-text: #1a73e8;
+}
+
+[data-theme="dark"] {
+    --bg: #1a1a2e;
+    --bg-alt: #222240;
+    --text: #e0e0e0;
+    --text-muted: #aaaaaa;
+    --text-faint: #888888;
+    --border: #333355;
+    --link: #66aaff;
+    --link-hover: #88ccff;
+    --accent: #66aaff;
+    --error: #ef5350;
+    --tag-bg: #2a3a5c;
+    --tag-text: #88bbff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    :root, [data-theme="dark"] {
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text);
+    background-color: var(--bg);
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+}
+
+header h1 {
+    font-size: 24px;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+nav a {
+    margin-left: 0;
+    text-decoration: none;
+    color: var(--link);
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+.theme-toggle {
+    background: var(--bg-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 15px;
+}
+
+.theme-toggle:hover {
+    background: var(--border);
+}
+
+.search-bar {
+    margin-bottom: 20px;
+}
+
+.search-bar form {
+    display: flex;
+    gap: 10px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.search-bar button, .add-form button, .form-actions button {
+    padding: 8px 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-bar button:hover, .add-form button:hover, .form-actions button:hover {
+    opacity: 0.9;
+}
+
+.search-bar a {
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+/* Settings bar for configurable truncation */
+.settings-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.settings-bar label {
+    font-weight: 500;
+}
+
+.settings-bar input[type="number"] {
+    width: 70px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+}
+
+.settings-bar .settings-hint {
+    font-size: 12px;
+    color: var(--text-faint);
+}
+
+.entry-list {
+    list-style: none;
+}
+
+.entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.entry.unread {
+    border-left: 3px solid var(--accent);
+}
+
+.entry.read {
+    opacity: 0.7;
+}
+
+.entry-content {
+    flex: 1;
+}
+
+.entry-headline {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.entry-headline a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.entry-headline a:hover {
+    color: var(--link);
+}
+
+.entry.read .entry-headline a {
+    text-decoration: line-through;
+}
+
+/* Excerpt — smaller font, visual secondary layer */
+.entry-excerpt {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    line-height: 1.4;
+    /* CSS line-clamp for excerpt truncation */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.entry-excerpt--missing {
+    font-style: italic;
+    color: var(--text-faint);
+}
+
+/* URL — tertiary layer, clickable, truncated */
+.entry-url {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-bottom: 6px;
+}
+
+.entry-url a {
+    color: var(--text-faint);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+.entry-url a:hover {
+    color: var(--link);
+    text-decoration: underline;
+}
+
+.entry-meta {
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-faint);
+}
+
+.tag {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+}
+
+.entry-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.entry-actions button {
+    padding: 4px 10px;
+    font-size: 12px;
+    background: var(--bg-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.entry-actions button:hover {
+    background: var(--border);
+}
+
+.delete-entry {
+    color: var(--error);
+    border-color: var(--error);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding: 15px 0;
+    border-top: 1px solid var(--border);
+}
+
+.pagination a {
+    color: var(--link);
+    text-decoration: none;
+}
+
+.pagination a:hover {
+    text-decoration: underline;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+.empty-state a {
+    color: var(--link);
+}
+
+.add-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.add-form h2 {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: inherit;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.form-actions button {
+    min-width: 100px;
+}
+
+#cancelBtn {
+    background: var(--bg-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.loading {
+    color: var(--text-muted);
+    margin: 10px 0;
+}
+
+.error {
+    color: var(--error);
+    margin: 10px 0;
+    padding: 10px;
+    background: var(--bg-alt);
+    border: 1px solid var(--error);
+    border-radius: 4px;
+}
