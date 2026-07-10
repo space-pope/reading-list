@@ -1,0 +1,68 @@
+{% extends "base.njk" %}
+
+{% block content %}
+<div class="search-bar hidden" id="searchBar">
+    <form method="GET" action="/">
+        <input type="text" name="q" placeholder="Search entries..." value="{{ searchQuery or '' }}">
+        <button type="submit">Search</button>
+        {% if searchQuery %}
+        <a href="/">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+{% if entries %}
+<ul class="entry-list">
+    {% for entry in entries %}
+    <li class="entry {{ 'read' if entry.read else 'unread' }}">
+        <div class="entry-content">
+            <h3 class="entry-headline">
+                <a href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{ entry.title }}</a>
+            </h3>
+            {% if entry.excerpt %}
+            <p class="entry-excerpt">{{ entry.excerpt }}</p>
+            {% else %}
+            <p class="entry-excerpt entry-excerpt--missing">[no excerpt available]</p>
+            {% endif %}
+            <p class="entry-url">{{ entry.url }}</p>
+            {% if entry.tags %}
+            <div class="entry-meta">
+                <span class="entry-tags">
+                    {% for tag in entry.tags %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="entry-footer">
+            <button class="action-btn toggle-read" data-id="{{ entry.id }}" data-read="{{ entry.read }}" data-tooltip="{% if entry.read %}Mark as unread{% else %}Mark as read{% endif %}">
+                <i class="mdi {% if entry.read %}mdi-eye-off{% else %}mdi-eye{% endif %}"></i>
+            </button>
+            <button class="action-btn delete-btn delete-entry" data-id="{{ entry.id }}" data-tooltip="Delete entry">
+                <i class="mdi mdi-trash-can"></i>
+            </button>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+<div class="pagination">
+    {% if currentPage > 1 %}
+    <a href="?page={{ currentPage - 1 }}{% if currentTag %}&tag={{ currentTag }}{% endif %}{% if searchQuery %}&q={{ searchQuery }}{% endif %}">Previous</a>
+    {% endif %}
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    {% if currentPage < totalPages %}
+    <a href="?page={{ currentPage + 1 }}{% if currentTag %}&tag={{ currentTag }}{% endif %}{% if searchQuery %}&q={{ searchQuery }}{% endif %}">Next</a>
+    {% endif %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No items yet. <a href="/add">Add one</a> to get started.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/app.js"></script>
+{% endblock %}

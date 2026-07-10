@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading List</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+    <script>
+        (function() {
+            var theme = localStorage.getItem('reading-list-theme');
+            if (!theme || (theme !== 'light' && theme !== 'dark')) {
+                theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Reading List</h1>
+        <nav>
+            <a href="/add" class="nav-add" title="Add new entry">
+                <span class="mdi mdi-plus" aria-hidden="true"></span>
+            </a>
+            <a href="#" id="searchToggle" class="nav-search" title="Search entries">
+                <span class="mdi mdi-magnify" aria-hidden="true"></span>
+            </a>
+            <button id="themeToggle" class="theme-toggle" aria-label="Switch to dark mode">&#x1F31D;</button>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    {% block scripts %}{% endblock %}
+    <script>
+        function setTheme(theme) {
+            localStorage.setItem('reading-list-theme', theme);
+            document.documentElement.setAttribute('data-theme', theme);
+            var btn = document.getElementById('themeToggle');
+            if (btn) {
+                btn.setAttribute('aria-label', 'Switch to ' + (theme === 'dark' ? 'light' : 'dark') + ' mode');
+                btn.textContent = theme === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF1D';
+            }
+        }
+
+        function getTheme() {
+            var theme = localStorage.getItem('reading-list-theme');
+            if (theme === 'light' || theme === 'dark') return theme;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        function toggleTheme() {
+            setTheme(getTheme() === 'light' ? 'dark' : 'light');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var btn = document.getElementById('themeToggle');
+            if (btn) {
+                btn.setAttribute('aria-label', 'Switch to ' + (getTheme() === 'dark' ? 'light' : 'dark') + ' mode');
+                btn.textContent = getTheme() === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF1D';
+                btn.addEventListener('click', toggleTheme);
+                btn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleTheme();
+                    }
+                });
+            }
+
+            var searchToggle = document.getElementById('searchToggle');
+            var searchBar = document.getElementById('searchBar');
+            if (searchToggle && searchBar) {
+                searchToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (searchBar.classList.contains('hidden')) {
+                        searchBar.classList.remove('hidden');
+                        var input = searchBar.querySelector('input');
+                        if (input) input.focus();
+                    } else {
+                        searchBar.classList.add('hidden');
+                        if (searchBar.querySelector('form')) {
+                            searchBar.querySelector('input').value = '';
+                            searchBar.querySelector('form').submit();
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

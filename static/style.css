@@ -1,0 +1,652 @@
+/* ==========================================================================
+   Reading List — Compact Editorial Design
+   Bookish, typographic, dense but breathable
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Design Tokens — Light
+   -------------------------------------------------------------------------- */
+
+:root {
+  --bg: #FAF8F5;
+  --bg-surface: #F3F0EB;
+  --text-primary: #2A2522;
+  --text-secondary: #6B6560;
+  --text-tertiary: #9A9490;
+  --text-muted: #D8D3CC;
+  --accent: #A8722A;
+  --accent-hover: #8A5C20;
+  --unread-bar: #A8722A;
+  --read-opacity: 0.65;
+  --error: #A83232;
+  --tag-bg: #F0EDE7;
+  --tag-text: #6B6560;
+  --focus-ring: rgba(168, 114, 42, 0.15);
+
+  --space-2xs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 14px;
+  --space-lg: 22px;
+  --content-max: 680px;
+}
+
+/* --------------------------------------------------------------------------
+   Design Tokens — Dark
+   -------------------------------------------------------------------------- */
+
+[data-theme="dark"] {
+  --bg: #1A1816;
+  --bg-surface: #222018;
+  --text-primary: #E8E4DD;
+  --text-secondary: #9A9490;
+  --text-tertiary: #6B6560;
+  --text-muted: #3A3632;
+  --accent: #D4A24E;
+  --accent-hover: #E8BA5C;
+  --unread-bar: #D4A24E;
+  --read-opacity: 0.5;
+  --error: #E06060;
+  --tag-bg: #2E2A24;
+  --tag-text: #9A9490;
+  --focus-ring: rgba(212, 162, 78, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   Transitions
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  :root,
+  [data-theme="dark"] {
+    transition: background-color 0.12s ease,
+                color 0.12s ease,
+                border-color 0.12s ease;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reset & Base
+   -------------------------------------------------------------------------- */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+main {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+@media (max-width: 767px) {
+  main {
+    padding: 0 14px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Header — compact, serif title, right-aligned actions
+   -------------------------------------------------------------------------- */
+
+header {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  position: relative;
+  padding: 18px 0 14px;
+  gap: var(--space-md);
+}
+
+header h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+nav a,
+nav button {
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: var(--space-xs);
+  transition: color 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+nav a:hover,
+nav button:hover {
+  color: var(--accent);
+}
+
+.nav-add {
+  color: var(--accent) !important;
+  font-size: 18px;
+  width: 30px;
+  height: 30px;
+}
+
+.nav-add:hover {
+  color: var(--accent-hover) !important;
+}
+
+.nav-search .mdi {
+  font-size: 16px;
+}
+
+.theme-toggle {
+  font-size: 13px;
+}
+
+/* --------------------------------------------------------------------------
+   Search Bar — thin underline, compact
+   -------------------------------------------------------------------------- */
+
+.search-bar {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--text-muted);
+}
+
+.search-bar.hidden {
+  display: none;
+}
+
+.search-bar form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 6px 0;
+  border: none;
+  border-bottom: 1px solid var(--text-muted);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  transition: border-color 0.12s ease;
+}
+
+.search-bar input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.search-bar button[type="submit"] {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 0;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+  letter-spacing: 0.02em;
+}
+
+.search-bar button[type="submit"]:hover {
+  background: var(--accent-hover);
+}
+
+.search-bar a {
+  color: var(--text-tertiary);
+  text-decoration: none;
+  font-size: 12px;
+  transition: color 0.12s ease;
+}
+
+.search-bar a:hover {
+  color: var(--text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   Entry List — compact, typographic, editorial
+   -------------------------------------------------------------------------- */
+
+.entry-list {
+  list-style: none;
+}
+
+.entry {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--text-muted);
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.entry.unread {
+  border-left: 2px solid var(--unread-bar);
+  padding-left: 14px;
+}
+
+.entry.read {
+  opacity: var(--read-opacity);
+}
+
+/* Main content column */
+.entry-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Title — serif, compact line-height */
+.entry-headline {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+
+.entry-headline a {
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.12s ease;
+}
+
+.entry-headline a:hover {
+  color: var(--accent);
+}
+
+.entry.read .entry-headline a {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-tertiary);
+}
+
+/* Excerpt — tighter, max 2 lines */
+.entry-excerpt {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin-bottom: 3px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.entry-excerpt--missing {
+  font-style: italic;
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+/* URL — monospace, compact */
+.entry-url {
+  font-size: 11px;
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.entry-url a {
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.12s ease;
+}
+
+.entry-url a:hover {
+  color: var(--accent);
+}
+
+/* Metadata row — compact inline line with tags and actions */
+.entry-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.entry-tags {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  padding: 2px 6px;
+  line-height: 1.4;
+}
+
+/* Actions — always visible, compact icons */
+.entry-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.entry-footer .action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.12s ease, transform 0.08s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entry-footer .action-btn:hover {
+  color: var(--accent);
+  transform: scale(1.08);
+}
+
+.entry-footer .action-btn.delete-btn:hover {
+  color: var(--error);
+}
+
+/* Tooltip */
+.entry-footer .action-btn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text-primary);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 400;
+  padding: 3px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  z-index: 10;
+}
+
+.entry-footer .action-btn[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Pagination — minimal, centered
+   -------------------------------------------------------------------------- */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-md);
+  margin-top: 14px;
+  padding: 10px 0;
+}
+
+.pagination a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  transition: color 0.12s ease;
+  letter-spacing: 0.02em;
+}
+
+.pagination a:hover {
+  color: var(--accent);
+}
+
+.pagination span {
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Empty State — compact invitation
+   -------------------------------------------------------------------------- */
+
+.empty-state {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.empty-state a {
+  color: var(--accent);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.empty-state a:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Add Form — compact, clean
+   -------------------------------------------------------------------------- */
+
+.add-form {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.add-form h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid var(--text-muted);
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  background: transparent;
+  color: var(--text-primary);
+  transition: border-color 0.12s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: 10px;
+}
+
+.form-actions button {
+  min-width: 80px;
+  padding: 7px var(--space-md);
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background-color 0.12s ease, opacity 0.12s ease;
+  letter-spacing: 0.02em;
+}
+
+.form-actions button[type="submit"],
+.form-actions button:not(#cancelBtn) {
+  background: var(--accent);
+  color: #fff;
+}
+
+.form-actions button[type="submit"]:hover,
+.form-actions button:not(#cancelBtn):hover {
+  background: var(--accent-hover);
+}
+
+#cancelBtn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--text-muted);
+}
+
+#cancelBtn:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+/* --------------------------------------------------------------------------
+   Error & Loading
+   -------------------------------------------------------------------------- */
+
+.loading {
+  color: var(--text-tertiary);
+  margin: var(--space-xs) 0;
+  font-size: 12px;
+}
+
+.error {
+  color: var(--error);
+  margin: 4px 0;
+  padding: 8px var(--space-sm);
+  background: transparent;
+  border: none;
+  border-left: 2px solid var(--error);
+  font-size: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive — Mobile
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 767px) {
+  header {
+    padding: 14px 0 10px;
+    justify-content: flex-start;
+  }
+
+  header h1 {
+    font-size: 18px;
+  }
+
+  nav {
+    position: static;
+    transform: none;
+    margin-left: auto;
+  }
+
+  .search-bar input {
+    font-size: 16px; /* prevent zoom on iOS */
+  }
+
+  .entry {
+    padding: 10px 0;
+    gap: var(--space-xs);
+  }
+
+  .entry.unread {
+    padding-left: 12px;
+  }
+
+  .entry-headline {
+    font-size: 14px;
+  }
+
+  .entry-excerpt {
+    font-size: 12px;
+  }
+
+  .entry-footer {
+    gap: var(--space-xs);
+  }
+
+  .entry-footer .action-btn {
+    min-height: 44px;
+    min-width: 44px;
+    font-size: 17px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    min-height: 44px;
+  }
+
+  .search-bar button[type="submit"] {
+    min-height: 44px;
+  }
+}
