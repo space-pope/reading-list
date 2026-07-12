@@ -36,25 +36,38 @@
    -------------------------------------------------------------------------- */
 
 [data-theme="dark"] {
-  --bg: #1A1816;
-  --bg-surface: #222018;
-  --text-primary: #E8E4DD;
-  --text-secondary: #9A9490;
-  --text-tertiary: #6B6560;
-  --text-muted: #3A3632;
+  --bg: #2E2B28;
+  --bg-surface: #383531;
+  --text-primary: #E5E1DA;
+  --text-secondary: #B5AFA9;
+  --text-tertiary: #AAA49F;
+  --text-muted: #7A7570;
   --accent: #D4A24E;
   --accent-hover: #E8BA5C;
   --unread-bar: #D4A24E;
   --read-opacity: 0.5;
   --error: #E06060;
-  --tag-bg: #2E2A24;
-  --tag-text: #9A9490;
+  --tag-bg: #3E3A36;
+  --tag-text: #A09A94;
   --focus-ring: rgba(212, 162, 78, 0.2);
 }
 
 /* --------------------------------------------------------------------------
    Transitions
    -------------------------------------------------------------------------- */
+
+@keyframes mdi-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.mdi-spin {
+  animation: mdi-spin 1s linear infinite;
+}
 
 @media (prefers-reduced-motion: no-preference) {
   :root,
@@ -468,6 +481,24 @@ nav button:hover {
   color: var(--error);
 }
 
+.entry-footer .inline-confirm-btn {
+  color: var(--error);
+}
+
+.entry-footer .inline-confirm-btn:not(:disabled):hover {
+  color: var(--error);
+  opacity: 1;
+}
+
+.entry-footer .inline-cancel:not(:disabled):hover {
+  color: var(--text-secondary);
+}
+
+.entry-footer .inline-confirm-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 .entry-footer .action-btn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -666,6 +697,16 @@ nav button:hover {
   border: none;
   border-left: 2px solid var(--error);
   font-size: 12px;
+}
+
+.inline-error {
+  color: var(--error);
+  font-size: 11px;
+  margin: var(--space-xs) 0;
+  padding: var(--space-xs) var(--space-sm);
+  border-left: 2px solid var(--error);
+  background: transparent;
+  line-height: 1.4;
 }
 
 /* --------------------------------------------------------------------------
