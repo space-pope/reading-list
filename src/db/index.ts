@@ -38,7 +38,7 @@ export function runMigrations(dbPath?: string): void {
     // schema_version table doesn't exist yet — that's fine, we'll create it
   }
 
-  const migrationPath = join(__dirname, 'db', 'migrations', 'V1_init.sql')
+  const migrationPath = join(__dirname, 'migrations', 'V1_init.sql')
   const sql = readFileSync(migrationPath, 'utf-8')
   dbConn.exec(sql)
 }
