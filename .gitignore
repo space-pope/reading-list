@@ -8,3 +8,4 @@ Thumbs.db
 *.swp
 .testing-db.sqlite
 /test-migration-db.sqlite
+static/app.js
