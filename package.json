@@ -7,7 +7,7 @@
     "reading-list": "dist/cli/index.js"
   },
   "scripts": {
-    "build": "npm run build:static && tsc",
+    "build": "npm run build:static && tsc && mkdir -p dist/db/migrations && cp src/db/migrations/*.sql dist/db/migrations/",
     "build:static": "node build-static.mjs",
     "start": "node dist/server/index.js",
     "dev": "tsx watch src/server/index.ts",

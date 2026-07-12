@@ -9,6 +9,7 @@ COPY tsconfig.json ./
 COPY src/ src/
 RUN npx tsc
 
+COPY src/db/migrations/ dist/db/migrations/
 COPY templates/ templates/
 COPY static/ static/
 
