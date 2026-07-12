@@ -1,13 +1,16 @@
-FROM python:3.13-slim
-
-RUN pip install --no-cache-dir uv
+FROM node:20-slim
 
 WORKDIR /app
 
-COPY pyproject.toml ./
-RUN if [ -f uv.lock ]; then uv sync --frozen --no-dev; else pip install --no-cache-dir -e .; fi
+COPY package*.json ./
+RUN npm ci
 
-COPY reading_list/ reading_list/
+COPY tsconfig.json ./
+COPY src/ src/
+RUN npx tsc
+
+COPY templates/ templates/
+COPY static/ static/
 
 ENV READING_LIST_DB_PATH=/data/db.sqlite
 ENV READING_LIST_HOST=0.0.0.0
@@ -17,4 +20,4 @@ RUN mkdir -p /data
 
 EXPOSE 3000
 
-CMD ["python", "-m", "reading_list.main"]
+CMD ["node", "dist/server/index.js"]
