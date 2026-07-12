@@ -99,8 +99,74 @@ main {
 }
 
 /* --------------------------------------------------------------------------
-   Header — compact, serif title, right-aligned actions
-   -------------------------------------------------------------------------- */
+    Toolbar — All/Unread toggle + Add + Search
+    -------------------------------------------------------------------------- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.toolbar-link {
+  text-decoration: none;
+  color: var(--text-tertiary);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 0;
+  transition: color 0.12s ease, background-color 0.12s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.toolbar-link:hover {
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+}
+
+.toolbar-link.active {
+  color: var(--accent);
+}
+
+.toolbar-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.toolbar-add {
+  color: var(--accent);
+  font-size: 16px;
+  width: 28px;
+  height: 28px;
+}
+
+.toolbar-add:hover {
+  color: var(--accent-hover);
+}
+
+.toolbar-search .mdi {
+  font-size: 14px;
+}
+
+/* --------------------------------------------------------------------------
+    Header — compact, serif title, right-aligned actions
+    -------------------------------------------------------------------------- */
 
 header {
   display: flex;
@@ -169,6 +235,11 @@ nav button:hover {
   font-size: 13px;
 }
 
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* --------------------------------------------------------------------------
    Search Bar — thin underline, compact
    -------------------------------------------------------------------------- */
@@ -226,6 +297,11 @@ nav button:hover {
 
 .search-bar button[type="submit"]:hover {
   background: var(--accent-hover);
+}
+
+.search-bar button[type="submit"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .search-bar a {
@@ -390,6 +466,11 @@ nav button:hover {
 
 .entry-footer .action-btn.delete-btn:hover {
   color: var(--error);
+}
+
+.entry-footer .action-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Tooltip */
@@ -588,8 +669,19 @@ nav button:hover {
 }
 
 /* --------------------------------------------------------------------------
-   Responsive — Mobile
-   -------------------------------------------------------------------------- */
+    Responsive — Mobile
+    -------------------------------------------------------------------------- */
+
+@media (max-width: 480px) {
+  .toolbar {
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .toolbar-spacer {
+    display: none;
+  }
+}
 
 @media (max-width: 767px) {
   header {

@@ -1,20 +1,32 @@
 {% extends "base.njk" %}
 
 {% block content %}
+<div class="toolbar" role="navigation" aria-label="View filter">
+    <a href="?view=all{% if currentTag %}&tag={{ currentTag }}{% endif %}{% if searchQuery %}&q={{ searchQuery }}{% endif %}" class="toolbar-link {{ 'active' if view == 'all' }}" aria-label="Show all entries" {% if view == 'all' %}aria-current="page"{% endif %}>All</a>
+    <a href="?view=unread{% if currentTag %}&tag={{ currentTag }}{% endif %}{% if searchQuery %}&q={{ searchQuery }}{% endif %}" class="toolbar-link {{ 'active' if view == 'unread' }}" aria-label="Show unread entries only" {% if view == 'unread' %}aria-current="page"{% endif %}>Unread</a>
+    <span class="toolbar-spacer"></span>
+    <a href="/add" class="toolbar-link toolbar-add" aria-label="Add new entry">
+        <span class="mdi mdi-plus" aria-hidden="true"></span>
+    </a>
+    <button type="button" id="searchToggle" class="toolbar-link toolbar-search" aria-label="Toggle search">
+        <span class="mdi mdi-magnify" aria-hidden="true"></span>
+    </button>
+</div>
+
 <div class="search-bar hidden" id="searchBar">
     <form method="GET" action="/">
         <input type="text" name="q" placeholder="Search entries..." value="{{ searchQuery or '' }}">
         <button type="submit">Search</button>
         {% if searchQuery %}
-        <a href="/">Clear</a>
+        <a href="{% if view == 'unread' %}?view=unread{% else %}?{% endif %}{% if currentTag %}&tag={{ currentTag }}{% endif %}">Clear</a>
         {% endif %}
     </form>
 </div>
 
-{% if entries %}
+{% if entries|length > 0 %}
 <ul class="entry-list">
     {% for entry in entries %}
-    <li class="entry {{ 'read' if entry.read else 'unread' }}">
+    <li class="entry{% if entry.read and view == 'all' %} read{% elif not entry.read %} unread{% endif %}">
         <div class="entry-content">
             <h3 class="entry-headline">
                 <a href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{ entry.title }}</a>
@@ -36,10 +48,10 @@
             {% endif %}
         </div>
         <div class="entry-footer">
-            <button class="action-btn toggle-read" data-id="{{ entry.id }}" data-read="{{ entry.read }}" data-tooltip="{% if entry.read %}Mark as unread{% else %}Mark as read{% endif %}">
-                <i class="mdi {% if entry.read %}mdi-eye-off{% else %}mdi-eye{% endif %}"></i>
+            <button class="action-btn toggle-read" data-id="{{ entry.id }}" data-read="{{ entry.read }}" data-tooltip="{% if entry.read %}Mark as unread{% else %}Mark as read{% endif %}" aria-label="{% if entry.read %}Mark as unread{% else %}Mark as read{% endif %}">
+                <i class="mdi {% if entry.read %}mdi-eye-off{% else %}mdi-eye{% endif %}" aria-hidden="true"></i>
             </button>
-            <button class="action-btn delete-btn delete-entry" data-id="{{ entry.id }}" data-tooltip="Delete entry">
+            <button class="action-btn delete-btn delete-entry" data-id="{{ entry.id }}" data-tooltip="Delete entry" aria-label="Delete entry">
                 <i class="mdi mdi-trash-can"></i>
             </button>
         </div>
@@ -49,16 +61,16 @@
 
 <div class="pagination">
     {% if currentPage > 1 %}
-    <a href="?page={{ currentPage - 1 }}{% if currentTag %}&tag={{ currentTag }}{% endif %}{% if searchQuery %}&q={{ searchQuery }}{% endif %}">Previous</a>
+    <a href="?page={{ currentPage - 1 }}&view={{ view }}{% if currentTag %}&tag={{ currentTag }}{% endif %}{% if searchQuery %}&q={{ searchQuery }}{% endif %}">Previous</a>
     {% endif %}
     <span>Page {{ currentPage }} of {{ totalPages }}</span>
     {% if currentPage < totalPages %}
-    <a href="?page={{ currentPage + 1 }}{% if currentTag %}&tag={{ currentTag }}{% endif %}{% if searchQuery %}&q={{ searchQuery }}{% endif %}">Next</a>
+    <a href="?page={{ currentPage + 1 }}&view={{ view }}{% if currentTag %}&tag={{ currentTag }}{% endif %}{% if searchQuery %}&q={{ searchQuery }}{% endif %}">Next</a>
     {% endif %}
 </div>
 {% else %}
 <div class="empty-state">
-    <p>No items yet. <a href="/add">Add one</a> to get started.</p>
+    <p>{% if view == 'unread' %}No unread items.{% else %}No items yet.{% endif %} <a href="/add">Add one</a> to get started.</p>
 </div>
 {% endif %}
 {% endblock %}

@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server/index.js",
-    "dev": "node --loader ts-node/esm src/server/index.ts",
+    "dev": "tsx watch src/server/index.ts",
     "cli": "node dist/cli/index.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -23,6 +23,8 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^26.1.1",
     "@types/nunjucks": "^3.2.6",
+
+    "tsx": "^4.23.0",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   },

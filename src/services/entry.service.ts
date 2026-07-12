@@ -15,18 +15,23 @@ export class EntryService {
     page: number = 1,
     perPage: number = 50,
     tag?: string,
-    search?: string
+    search?: string,
+    view?: string
   ): { entries: import('../models/entry.js').Entry[]; total: number } {
     const db = this.db()
     const offset = (page - 1) * perPage
+    const unreadOnly = view === 'unread'
 
     if (tag) {
-      const row = db
+      const whereClause = unreadOnly
+        ? `WHERE t.name = ? AND e.read = 0`
+        : `WHERE t.name = ?`
+      const countRow = db
         .prepare(
           `SELECT COUNT(DISTINCT e.id) as total FROM entries e
            INNER JOIN entry_tags et ON e.id = et.entry_id
            INNER JOIN tags t ON et.tag_id = t.id
-           WHERE t.name = ?`
+           ${whereClause}`
         )
         .get(tag) as { total: number }
 
@@ -35,7 +40,7 @@ export class EntryService {
           `SELECT e.* FROM entries e
            INNER JOIN entry_tags et ON e.id = et.entry_id
            INNER JOIN tags t ON et.tag_id = t.id
-           WHERE t.name = ?
+           ${whereClause}
            ORDER BY e.created_at DESC
            LIMIT ? OFFSET ?`
         )
@@ -47,11 +52,14 @@ export class EntryService {
         return entry
       })
 
-      return { entries, total: row.total }
+      return { entries, total: countRow.total }
     }
 
     if (search) {
-      const row = db
+      const whereClause = unreadOnly
+        ? `WHERE entries_fts MATCH ? AND e.read = 0`
+        : `WHERE entries_fts MATCH ?`
+      const countRow = db
         .prepare(`SELECT COUNT(*) as total FROM entries_fts WHERE entries_fts MATCH ?`)
         .get(search) as { total: number }
 
@@ -59,7 +67,7 @@ export class EntryService {
         .prepare(
           `SELECT e.* FROM entries e
            INNER JOIN entries_fts fts ON e.id = fts.rowid
-           WHERE entries_fts MATCH ?
+           ${whereClause}
            ORDER BY rank
            LIMIT ? OFFSET ?`
         )
@@ -71,16 +79,17 @@ export class EntryService {
         return entry
       })
 
-      return { entries, total: row.total }
+      return { entries, total: countRow.total }
     }
 
-    const row = db
-      .prepare(`SELECT COUNT(*) as total FROM entries`)
+    const countWhere = unreadOnly ? `WHERE read = 0` : ''
+    const countRow = db
+      .prepare(`SELECT COUNT(*) as total FROM entries ${countWhere}`)
       .get() as { total: number }
 
     const rows = db
       .prepare(
-        `SELECT * FROM entries ORDER BY created_at DESC LIMIT ? OFFSET ?`
+        `SELECT * FROM entries ${countWhere} ORDER BY created_at DESC LIMIT ? OFFSET ?`
       )
       .all(perPage, offset) as import('../models/entry.js').EntryRow[]
 
@@ -90,7 +99,7 @@ export class EntryService {
       return entry
     })
 
-    return { entries, total: row.total }
+    return { entries, total: countRow.total }
   }
 
   getEntry(id: number): import('../models/entry.js').Entry | null {

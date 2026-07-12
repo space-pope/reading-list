@@ -35,9 +35,10 @@ export function registerRoutes(app: FastifyInstance): void {
       (request.query as Record<string, string>).q ||
       (request.query as Record<string, string>).search ||
       undefined
+    const view = (request.query as Record<string, string>).view === 'all' ? 'all' : 'unread'
     const truncation = Math.max(20, Math.min(500, parseInt((request.query as Record<string, string>).truncation || '80', 10)))
 
-    const { entries, total } = entryService.getEntries(page, perPage, tag, search)
+    const { entries, total } = entryService.getEntries(page, perPage, tag, search, view)
     const totalPages = Math.ceil(total / perPage)
     const tags = entryService.getAllTags()
 
@@ -49,6 +50,7 @@ export function registerRoutes(app: FastifyInstance): void {
       currentTag: tag,
       searchQuery: search,
       truncationLength: truncation,
+      view,
     })
   })
 

@@ -41,7 +41,35 @@ document.addEventListener('DOMContentLoaded', function () {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ read: !read }),
       })
-      if (response.ok) location.reload()
+      if (!response.ok) return
+
+      const li = button.closest('li.entry')
+      if (!li) return
+
+      // In unread view: remove from DOM (item disappeared)
+      const currentView = new URLSearchParams(window.location.search).get('view')
+      if (currentView === 'unread') {
+        li.style.transition = 'opacity 0.15s ease, transform 0.15s ease'
+        li.style.opacity = '0'
+        li.style.transform = 'translateX(-10px)'
+        setTimeout(() => li.remove(), 150)
+        return
+      }
+
+      // In all view: update to read state inline
+      li.classList.remove('unread')
+      li.classList.add('read')
+      const headline = li.querySelector('.entry-headline a')
+      if (headline) {
+        headline.style.textDecoration = 'line-through'
+        headline.style.textDecorationColor = 'var(--text-tertiary)'
+      }
+      const icon = button.querySelector('i')
+      if (icon) {
+        icon.className = 'mdi mdi-eye-off'
+      }
+      button.setAttribute('data-read', 'true')
+      button.setAttribute('data-tooltip', 'Mark as unread')
     })
   })
 
