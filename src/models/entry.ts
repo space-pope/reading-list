@@ -2,7 +2,7 @@ export interface Entry {
   id: number | null
   url: string
   title: string
-  excerpt: string
+  description: string
   read: boolean
   source_type: string
   created_at: string
@@ -14,7 +14,7 @@ export interface EntryRow {
   id: number
   url: string
   title: string
-  excerpt: string
+  description: string
   read: number
   source_type: string
   created_at: string
@@ -26,7 +26,7 @@ export function entryFromRow(row: EntryRow): Entry {
     id: row.id,
     url: row.url,
     title: row.title,
-    excerpt: row.excerpt,
+    description: row.description,
     read: Boolean(row.read),
     source_type: row.source_type,
     created_at: row.created_at,
@@ -40,7 +40,7 @@ export function entryToDict(entry: Entry): Record<string, unknown> {
     id: entry.id,
     url: entry.url,
     title: entry.title,
-    excerpt: entry.excerpt,
+    description: entry.description,
     read: entry.read,
     source_type: entry.source_type,
     created_at: entry.created_at,
@@ -64,8 +64,8 @@ export function validateEntry(entry: Entry): string[] {
     errors.push('title must be 500 characters or less')
   }
 
-  if (entry.excerpt.length > 2000) {
-    errors.push('excerpt must be 2000 characters or less')
+  if (entry.description.length > 2000) {
+    errors.push('description must be 2000 characters or less')
   }
 
   if (entry.source_type !== 'generic') {

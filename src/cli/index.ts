@@ -51,12 +51,12 @@ program
     for (const entry of result.entries) {
       const status = entry.read ? 'read' : 'unread'
       const tags = entry.tags.length ? `    tags: ${entry.tags.join(', ')}` : ''
-      const excerpt =
-        entry.excerpt.length > 100
-          ? entry.excerpt.slice(0, 100) + '...'
-          : entry.excerpt
+      const description =
+        entry.description.length > 100
+          ? entry.description.slice(0, 100) + '...'
+          : entry.description
       console.log(`[${entry.id}] ${entry.url}`)
-      console.log(`    "${entry.title}" — ${excerpt}`)
+      console.log(`    "${entry.title}" — ${description}`)
       if (tags) console.log(tags)
       console.log(`    status: ${status}`)
       console.log()
@@ -68,16 +68,16 @@ program
   .description('Add an entry')
   .argument('<url>', 'URL to add')
   .option('--title <title>', 'Title')
-  .option('--excerpt <excerpt>', 'Excerpt')
-  .option('--fetch', 'Fetch headline/excerpt from URL')
+  .option('--description <description>', 'Description')
+  .option('--fetch', 'Fetch headline/description from URL')
   .action(async (url, options) => {
-    let { title, excerpt } = options
+    let { title, description } = options
 
     if (options.fetch) {
       try {
         const result = await fetchAndExtract(url)
         title = title || result.title || ''
-        excerpt = excerpt || result.excerpt || ''
+        description = description || result.description || ''
       } catch (err: unknown) {
         console.error(`Error fetching: ${err instanceof Error ? err.message : String(err)}`)
         process.exitCode = 1
@@ -87,8 +87,8 @@ program
 
     if (options.fetch && title) {
       // With --fetch, only title is required
-    } else if (!title || !excerpt) {
-      console.error('Error: --title and --excerpt are required (or use --fetch)')
+    } else if (!title || !description) {
+      console.error('Error: --title and --description are required (or use --fetch)')
       process.exitCode = 1
       return
     }
@@ -97,7 +97,7 @@ program
       id: null,
       url,
       title: title || '',
-      excerpt: excerpt || '',
+      description: description || '',
       read: false,
       source_type: 'generic',
       created_at: '',

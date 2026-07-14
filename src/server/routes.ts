@@ -87,7 +87,7 @@ export function registerRoutes(app: FastifyInstance): void {
     const body = request.body as Record<string, string>
     const url = body.url
     let title = body.title
-    let excerpt = body.excerpt || ''
+    let description = body.description || ''
 
     if (!url) {
       return reply.status(400).send({ error: 'url is required' })
@@ -111,7 +111,7 @@ export function registerRoutes(app: FastifyInstance): void {
       id: null,
       url,
       title,
-      excerpt,
+      description,
       read: false,
       source_type: 'generic',
       created_at: '',
@@ -154,13 +154,13 @@ export function registerRoutes(app: FastifyInstance): void {
     const updates: Record<string, unknown> = {}
 
     if ('title' in body) updates.title = body.title as string
-    if ('excerpt' in body) updates.excerpt = body.excerpt as string
+    if ('description' in body) updates.description = body.description as string
     if ('read' in body) {
       const val = body.read as string | boolean
       updates.read = typeof val === 'string' ? ['true', '1', 'yes'].includes(val.toLowerCase()) : Boolean(val)
     }
 
-    const updated = entryService.updateEntry(entryId, updates as { title?: string; excerpt?: string; read?: boolean })
+    const updated = entryService.updateEntry(entryId, updates as { title?: string; description?: string; read?: boolean })
     return reply.send(updated ? entryToDict(updated) : null)
   })
 

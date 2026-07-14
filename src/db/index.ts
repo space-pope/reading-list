@@ -38,13 +38,21 @@ export function runMigrations(dbPath?: string): void {
     .prepare('SELECT MAX(version) as version FROM schema_version')
     .get() as { version: number | null }
 
-  if (versionRow.version != null && versionRow.version >= 1) return
+  const currentVersion = versionRow.version ?? 0
 
-  const migrationPath = join(__dirname, 'migrations', 'V1_init.sql')
-  const sql = readFileSync(migrationPath, 'utf-8')
-  dbConn.exec(sql)
+  if (currentVersion < 1) {
+    const migrationPath = join(__dirname, 'migrations', 'V1_init.sql')
+    const sql = readFileSync(migrationPath, 'utf-8')
+    dbConn.exec(sql)
+    dbConn.prepare('INSERT INTO schema_version (version) VALUES (1)').run()
+  }
 
-  dbConn.prepare('INSERT INTO schema_version (version) VALUES (1)').run()
+  if (currentVersion < 2) {
+    const migrationPath = join(__dirname, 'migrations', 'V2_rename_excerpt_to_description.sql')
+    const sql = readFileSync(migrationPath, 'utf-8')
+    dbConn.exec(sql)
+    dbConn.prepare('INSERT INTO schema_version (version) VALUES (2)').run()
+  }
 }
 
 export function close(): void {
