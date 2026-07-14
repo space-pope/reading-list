@@ -1,7 +1,7 @@
 interface FetchResult {
   url: string
   title: string
-  excerpt: string
+  description: string
   fetch_time_ms: number
 }
 
@@ -9,7 +9,7 @@ interface EntryResponse {
   id: number | null
   url: string
   title: string
-  excerpt: string
+  description: string
   read: boolean
   source_type: string
   created_at: string
@@ -251,9 +251,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const data = (await response.json()) as FetchResult
         const titleInput = document.getElementById('title') as HTMLInputElement
-        const excerptInput = document.getElementById('excerpt') as HTMLTextAreaElement
+        const descriptionInput = document.getElementById('description') as HTMLTextAreaElement
         if (titleInput) titleInput.value = data.title || ''
-        if (excerptInput) excerptInput.value = data.excerpt || ''
+        if (descriptionInput) descriptionInput.value = data.description || ''
         const addForm = document.getElementById('addForm')
         const saveForm = document.getElementById('saveForm')
         if (addForm) addForm.style.display = 'none'
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault()
       const url = (document.getElementById('url') as HTMLInputElement).value
       const title = (document.getElementById('title') as HTMLInputElement).value
-      const excerpt = (document.getElementById('excerpt') as HTMLTextAreaElement).value
+      const description = (document.getElementById('description') as HTMLTextAreaElement).value
 
       let errorDiv = document.getElementById('error')
       if (errorDiv) errorDiv.style.display = 'none'
@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const response = await fetch('/entries', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, title, excerpt }),
+          body: JSON.stringify({ url, title, description }),
         })
 
         if (!response.ok) {
@@ -312,4 +312,174 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     })
   }
+
+  // Inline editing for description fields in entry list
+  let activeEditEntryId: number | null = null
+  let activeEditTextarea: HTMLTextAreaElement | null = null
+
+  function dismissInlineEdit(): void {
+    if (activeEditEntryId === null || !activeEditTextarea) return
+    activeEditEntryId = null
+    activeEditTextarea = null
+  }
+
+  function setupInlineEdit(descriptionEl: HTMLElement): void {
+    descriptionEl.addEventListener('click', function (e) {
+      // Don't open edit if clicking inside an already-open edit area
+      if ((e.target as HTMLElement).closest('.entry-description--editable') ||
+          (e.target as HTMLElement).closest('.inline-edit-actions')) {
+        return
+      }
+
+      // Cancel any active edit on another entry
+      if (activeEditEntryId !== null) {
+        dismissInlineEdit()
+      }
+
+      const entryLi = descriptionEl.closest('li.entry')
+      if (!entryLi) return
+
+      const entryId = parseInt(entryLi.dataset.id || '0', 10)
+      const originalText = descriptionEl.textContent || ''
+
+      // Replace text content with textarea
+      const textarea = document.createElement('textarea')
+      textarea.className = 'entry-description entry-description--editable'
+      textarea.value = originalText
+      textarea.setAttribute('aria-label', 'Edit description')
+
+      const actionsDiv = document.createElement('div')
+      actionsDiv.className = 'inline-edit-actions'
+
+      const saveBtn = document.createElement('button')
+      saveBtn.type = 'button'
+      saveBtn.className = 'inline-edit-save action-btn inline-confirm-btn'
+      saveBtn.innerHTML = '<i class="mdi mdi-check" aria-hidden="true"></i>'
+      saveBtn.setAttribute('data-tooltip', 'Save changes')
+      saveBtn.setAttribute('aria-label', 'Save changes')
+
+      const cancelBtn = document.createElement('button')
+      cancelBtn.type = 'button'
+      cancelBtn.className = 'inline-edit-cancel action-btn inline-confirm-btn'
+      cancelBtn.innerHTML = '<i class="mdi mdi-close" aria-hidden="true"></i>'
+      cancelBtn.setAttribute('data-tooltip', 'Discard changes')
+      cancelBtn.setAttribute('aria-label', 'Discard changes')
+
+      actionsDiv.appendChild(saveBtn)
+      actionsDiv.appendChild(cancelBtn)
+
+      descriptionEl.replaceWith(textarea, actionsDiv)
+
+      activeEditEntryId = entryId
+      activeEditTextarea = textarea
+      textarea.focus()
+      textarea.select()
+
+      // Save action
+      saveBtn.addEventListener('click', async function (e) {
+        e.stopPropagation()
+        const newValue = textarea.value
+        const saveIcon = saveBtn.querySelector('i')
+        saveBtn.disabled = true
+        if (saveIcon) {
+          saveIcon.className = 'mdi mdi-dots-horizontal mdi-spin'
+        }
+
+        // Client-side validation
+        if (newValue.length > 2000) {
+          const errorDiv = document.createElement('div')
+          errorDiv.className = 'inline-edit-error'
+          errorDiv.textContent = 'Description must be 2000 characters or less'
+          actionsDiv.parentNode!.insertBefore(errorDiv, actionsDiv.nextSibling)
+          saveBtn.disabled = false
+          if (saveIcon) {
+            saveIcon.className = 'mdi mdi-check'
+          }
+          return
+        }
+
+        // Remove existing inline error if any
+        const existingError = actionsDiv.parentNode?.querySelector('.inline-edit-error')
+        if (existingError) existingError.remove()
+
+        try {
+          const response = await fetch(`/entries/${entryId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: newValue }),
+          })
+
+          if (!response.ok) {
+            let errorMsg = 'Failed to save description'
+            try {
+              const data = await response.json()
+              if (data.error) errorMsg = data.error
+            } catch { /* ignore JSON parse errors */ }
+
+            const errorDiv = document.createElement('div')
+            errorDiv.className = 'inline-edit-error'
+            errorDiv.textContent = errorMsg
+            actionsDiv.parentNode!.insertBefore(errorDiv, actionsDiv.nextSibling)
+            saveBtn.disabled = false
+            if (saveIcon) {
+              saveIcon.className = 'mdi mdi-check'
+            }
+            return
+          }
+
+          // Success: restore as plain text
+          const para = document.createElement('p')
+          para.className = descriptionEl.className
+          para.textContent = newValue
+          para.dataset.originalText = newValue
+          actionsDiv.parentNode!.replaceChild(para, actionsDiv)
+          textarea.parentNode!.replaceChild(para, textarea)
+          dismissInlineEdit()
+          setupInlineEdit(para)
+        } catch {
+          const errorDiv = document.createElement('div')
+          errorDiv.className = 'inline-edit-error'
+          errorDiv.textContent = 'Network error — could not save description'
+          actionsDiv.parentNode!.insertBefore(errorDiv, actionsDiv.nextSibling)
+          saveBtn.disabled = false
+          if (saveIcon) {
+            saveIcon.className = 'mdi mdi-check'
+          }
+        }
+      })
+
+      // Cancel action
+      cancelBtn.addEventListener('click', function (e) {
+        e.stopPropagation()
+        const para = document.createElement('p')
+        para.className = descriptionEl.className
+        para.textContent = originalText
+        para.dataset.originalText = originalText
+        actionsDiv.parentNode!.replaceChild(para, actionsDiv)
+        textarea.parentNode!.replaceChild(para, textarea)
+        dismissInlineEdit()
+        setupInlineEdit(para)
+      })
+
+      // Escape key cancels
+      textarea.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          const para = document.createElement('p')
+          para.className = descriptionEl.className
+          para.textContent = originalText
+          para.dataset.originalText = originalText
+          actionsDiv.parentNode!.replaceChild(para, actionsDiv)
+          textarea.parentNode!.replaceChild(para, textarea)
+          dismissInlineEdit()
+          setupInlineEdit(para)
+        }
+      })
+    })
+  }
+
+  // Set up inline editing on all description elements
+  document.querySelectorAll('.entry-description').forEach((el) => {
+    setupInlineEdit(el as HTMLElement)
+  })
 })

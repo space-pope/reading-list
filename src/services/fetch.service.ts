@@ -3,7 +3,7 @@ import { extract } from 'trafilatura'
 export interface FetchResult {
   url: string
   title: string
-  excerpt: string
+  description: string
   fetch_time_ms: number
 }
 
@@ -42,16 +42,16 @@ export async function fetchAndExtract(
       const result = extract(html)
 
       const headline = result.metadata.title?.slice(0, 500) || ''
-      const excerpt = result.metadata.description?.slice(0, 2000) || ''
+      const description = result.metadata.description?.slice(0, 2000) || ''
 
-      return { url, title: headline, excerpt, fetch_time_ms: elapsed }
+      return { url, title: headline, description, fetch_time_ms: elapsed }
     } catch {
       // trafilatura extraction failed — fallback to <title> tag
       const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
       return {
         url,
         title: titleMatch?.[1]?.trim() || 'Untitled',
-        excerpt: '',
+        description: '',
         fetch_time_ms: elapsed,
       }
     }

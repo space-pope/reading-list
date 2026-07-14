@@ -130,13 +130,13 @@ export class EntryService {
     const db = this.db()
     try {
       const stmt = db.prepare(
-        `INSERT INTO entries (url, title, excerpt, read, source_type, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO entries (url, title, description, read, source_type, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`
       )
       const result = stmt.run(
         entry.url,
         entry.title,
-        entry.excerpt,
+        entry.description,
         entry.read ? 1 : 0,
         entry.source_type,
         nowISO(),
@@ -154,7 +154,7 @@ export class EntryService {
 
   updateEntry(
     id: number,
-    updates: { title?: string; excerpt?: string; read?: boolean }
+    updates: { title?: string; description?: string; read?: boolean }
   ): import('../models/entry.js').Entry | null {
     const db = this.db()
     const fields: string[] = []
@@ -164,9 +164,9 @@ export class EntryService {
       fields.push('title = ?')
       values.push(updates.title!)
     }
-    if ('excerpt' in updates) {
-      fields.push('excerpt = ?')
-      values.push(updates.excerpt!)
+    if ('description' in updates) {
+      fields.push('description = ?')
+      values.push(updates.description!)
     }
     if ('read' in updates) {
       fields.push('read = ?')

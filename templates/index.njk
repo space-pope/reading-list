@@ -31,10 +31,10 @@
             <h3 class="entry-headline">
                 <a href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{ entry.title }}</a>
             </h3>
-            {% if entry.excerpt %}
-            <p class="entry-excerpt">{{ entry.excerpt }}</p>
+            {% if entry.description %}
+            <p class="entry-description">{{ entry.description }}</p>
             {% else %}
-            <p class="entry-excerpt entry-excerpt--missing">[no excerpt available]</p>
+            <p class="entry-description entry-description--missing">[no description]</p>
             {% endif %}
             <p class="entry-url">{{ entry.url }}</p>
             {% if entry.tags %}
