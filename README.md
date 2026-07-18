@@ -6,22 +6,25 @@ A local reading list manager for articles and web content you want to keep track
 
 - **Add entries by URL** — Paste a link and the app fetches the page title and excerpt automatically, or skip straight to manual entry
 - **Browse and search** — Paginated list view with full-text search powered by SQLite FTS5
-- **Tag your entries** — Create and manage tags to organize your reading list however you like
+- **Tag your entries** — Click the tag icon (🏷) on any entry to open a dropdown of existing tags; select one to add it as a badge, or type a new tag name to create it. Remove tags by clicking the × on the badge. Click a tag badge to filter the list to entries with that tag. You can also add tags when creating a new entry via the add form.
 - **Mark as read/unread** — Track what you've consumed with a simple toggle; read items disappear from the Unread view when marked (default view)
 - **Filter by read status** — Use the All / Unread toolbar to switch between viewing all entries or only unread ones; works with search and tags (unread shown by default)
+- **Add notes to entries** — Attach freeform notes to individual entries with optional page number references; notes are displayed inline in the entry list with a count badge and visible in the entry detail view
+- **Export your list** — Download all entries (with notes and tags) as a single markdown file via a button in the header or the `export` CLI command
 - **Web UI** — Clean, minimal interface with light and dark themes
-- **CLI** — Manage your list from the terminal with `npm list`, `add`, `tag`, `read`, `unread`, `delete`, `stats`, and `tags` commands
+- **CLI** — Manage your list from the terminal with `list`, `add`, `tag`, `untag`, `read`, `unread`, `delete`, `stats`, `tags`, `notes add`, `notes list`, and `export` commands
 - **Docker support** — Run it anywhere with a single `docker run` command
 
 ## Data Storage
 
 All data lives in a single SQLite database file. By default it's stored at `~/.reading-list/db.sqlite`, but you can change the location with the `READING_LIST_DB_PATH` environment variable.
 
-The database schema consists of three tables:
+The database schema consists of four tables:
 
-- **entries** — Each item you add (URL, title, excerpt, read status, timestamps)
+- **entries** — Each item you add (URL, title, description, read status, timestamps)
 - **tags** — A lookup table for tag names (deduplicated)
 - **entry_tags** — A many-to-many join table linking entries to tags
+- **notes** — Freeform notes attached to entries, with an optional page number field and a cascade-delete relationship to entries
 
 Full-text search is handled by an FTS5 virtual table synced to the `entries` table via triggers, so searches stay fast as your list grows.
 
@@ -84,6 +87,9 @@ Or run the CLI:
 ```bash
 npx reading-list list
 npx reading-list add "https://example.com/article" --fetch
+npx reading-list notes add 1 --content "Great point about type safety" --page-number "42"
+npx reading-list notes list 1 --json
+npx reading-list export --output backup.md
 ```
 
 ## Development

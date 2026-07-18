@@ -1,12 +1,15 @@
 import { Command } from 'commander'
 import { EntryService } from '../services/entry.service.js'
+import { NoteService } from '../services/note.service.js'
 import { entryToDict } from '../models/entry.js'
+import { noteToDict } from '../models/note.js'
 import { fetchAndExtract } from '../services/fetch.service.js'
 import { createInterface } from 'node:readline'
 import { ensureDbDir, getConfig } from '../config.js'
 
 const program = new Command()
 const entryService = new EntryService()
+const noteService = new NoteService()
 
 const rl = createInterface({
   input: process.stdin,
@@ -224,6 +227,104 @@ program
     console.log(`Tags: ${s.tags}`)
     if (s.oldest) console.log(`Oldest entry: ${s.oldest.slice(0, 10)}`)
     if (s.newest) console.log(`Newest entry: ${s.newest.slice(0, 10)}`)
+  })
+
+function findEntry(target: string): import('../models/entry.js').Entry | null {
+  // Try as numeric ID first
+  const id = parseInt(target, 10)
+  if (!isNaN(id)) {
+    const entry = entryService.getEntry(id)
+    if (entry) return entry
+  }
+  // Try as URL
+  const entries = entryService.getEntries(1, 1000)
+  for (const entry of entries.entries) {
+    if (entry.url === target) return entry
+  }
+  return null
+}
+
+program
+  .command('notes')
+  .description('Manage notes for entries')
+
+program
+  .command('notes add')
+  .description('Add a note to an entry')
+  .argument('<entry>', 'Entry ID or URL')
+  .option('-c, --content <text>', 'Note content (required)')
+  .option('-p, --page-number <page>', 'Optional page number reference')
+  .action(async (entryTarget, options) => {
+    const entry = findEntry(entryTarget)
+    if (!entry) {
+      console.error(`Entry not found: ${entryTarget}`)
+      process.exitCode = 1
+      return
+    }
+
+    if (!options.content) {
+      console.error('Error: --content is required')
+      process.exitCode = 1
+      return
+    }
+
+    const note: import('../models/note.js').Note = {
+      id: null,
+      entry_id: entry.id as number,
+      content: options.content,
+      page_number: options.pageNumber || null,
+      created_at: '',
+      updated_at: '',
+    }
+
+    try {
+      const created = noteService.createNote(note)
+      console.log(`Added note ${created.id} to entry ${entry.id}: "${created.content.slice(0, 80)}${created.content.length > 80 ? '...' : ''}"`)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(`Error: ${err.message}`)
+      } else {
+        console.error('Error adding note')
+      }
+      process.exitCode = 1
+    }
+  })
+
+program
+  .command('notes list')
+  .description('List notes for an entry')
+  .argument('<entry>', 'Entry ID or URL')
+  .option('--json', 'Output as JSON')
+  .action(async (entryTarget, options) => {
+    const entry = findEntry(entryTarget)
+    if (!entry) {
+      console.error(`Entry not found: ${entryTarget}`)
+      process.exitCode = 1
+      return
+    }
+
+    const notes = noteService.getNotesByEntry(entry.id as number)
+
+    if (options.json) {
+      console.log(JSON.stringify(notes.map(n => noteToDict(n)), null, 2))
+      return
+    }
+
+    if (!notes.length) {
+      console.log(`No notes for entry: ${entry.title}`)
+      return
+    }
+
+    console.log(`Notes for "${entry.title}" (${notes.length}):`)
+    console.log()
+
+    for (const note of notes) {
+      const page = note.page_number ? ` [p. ${note.page_number}]` : ''
+      const created = note.created_at.slice(0, 10)
+      console.log(`[${note.id}] ${created}${page}`)
+      console.log(`    ${note.content}`)
+      console.log()
+    }
   })
 
 program.parse()

@@ -1,10 +1,13 @@
 import type { FastifyInstance } from 'fastify'
 import { EntryService } from '../services/entry.service.js'
+import { NoteService } from '../services/note.service.js'
 import { fetchAndExtract } from '../services/fetch.service.js'
 import { entryToDict } from '../models/entry.js'
 import { validateEntry } from '../models/entry.js'
+import { noteToDict } from '../models/note.js'
 
 const entryService = new EntryService()
+const noteService = new NoteService()
 
 function generateTitleFromUrl(url: string): string {
   try {
@@ -41,6 +44,13 @@ export function registerRoutes(app: FastifyInstance): void {
     const { entries, total } = entryService.getEntries(page, perPage, tag, search, view)
     const totalPages = Math.ceil(total / perPage)
     const tags = entryService.getAllTags()
+
+    // Attach note count to each entry for the list view badge
+    for (const entry of entries) {
+      if (entry.id !== null) {
+        (entry as import('../models/entry.js').Entry & { note_count?: number }).note_count = noteService.getNoteCountForEntry(entry.id)
+      }
+    }
 
     return reply.view('index.njk', {
       entries,
@@ -131,7 +141,19 @@ export function registerRoutes(app: FastifyInstance): void {
 
     try {
       const created = entryService.createEntry(entry)
-      return reply.status(201).send(entryToDict(created))
+      const createdId = created.id
+      if (createdId === null) {
+        return reply.status(500).send({ error: 'Entry created but ID is null' })
+      }
+      const rawTags = (body.tags as unknown as string[]) || []
+      const normalizedTags = rawTags.map((t) => t.trim().toLowerCase())
+      for (const tagName of normalizedTags) {
+        if (tagName) {
+          entryService.addTag(createdId, tagName)
+        }
+      }
+      const withTags = entryService.getEntry(createdId)
+      return reply.status(201).send(withTags ? entryToDict(withTags) : null)
     } catch (err: unknown) {
       if (err instanceof Error && err.message.includes('Entry with this URL already exists')) {
         return reply.status(409).send({ error: err.message })
@@ -160,7 +182,15 @@ export function registerRoutes(app: FastifyInstance): void {
       updates.read = typeof val === 'string' ? ['true', '1', 'yes'].includes(val.toLowerCase()) : Boolean(val)
     }
 
-    const updated = entryService.updateEntry(entryId, updates as { title?: string; description?: string; read?: boolean })
+    let updated = entryService.updateEntry(entryId, updates as { title?: string; description?: string; read?: boolean })
+
+    if ('tags' in body && Array.isArray(body.tags)) {
+      const rawTags = body.tags as string[]
+      const normalizedTags = rawTags.map((t) => t.trim().toLowerCase())
+      entryService.updateTagsForEntry(entryId, normalizedTags)
+      updated = entryService.getEntry(entryId)
+    }
+
     return reply.send(updated ? entryToDict(updated) : null)
   })
 
@@ -190,6 +220,99 @@ export function registerRoutes(app: FastifyInstance): void {
       return reply.status(400).send({ error: 'name is required' })
     }
     return reply.status(201).send({ id: null, name })
+  })
+
+  // POST /notes - Create note
+  app.post('/notes', async (request, reply) => {
+    const body = request.body as Record<string, unknown>
+    const entryId = (body.entry_id as number) ?? null
+    const content = (body.content as string) ?? ''
+    const pageNumber = (body.page_number as string) ?? null
+
+    const note: import('../models/note.js').Note = {
+      id: null,
+      entry_id: entryId as number,
+      content,
+      page_number: pageNumber,
+      created_at: '',
+      updated_at: '',
+    }
+
+    try {
+      const created = noteService.createNote(note)
+      return reply.status(201).send(noteToDict(created))
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message === 'Entry not found') {
+        return reply.status(404).send({ error: 'Entry not found' })
+      }
+      const detailErrors: Record<string, string> = {}
+      const errObj = err as Record<string, unknown>
+      if ('errors' in errObj && Array.isArray(errObj.errors)) {
+        for (const e of errObj.errors as string[]) {
+          const [field, ...rest] = e.split(' ', 2)
+          detailErrors[field] = rest.join(' ') || e
+        }
+      } else if ('errors' in errObj && typeof errObj.errors === 'object' && errObj.errors !== null) {
+        for (const [field, msg] of Object.entries(errObj.errors as Record<string, string>)) {
+          detailErrors[field] = msg
+        }
+      }
+      if (Object.keys(detailErrors).length > 0) {
+        return reply.status(400).send({ error: 'Validation failed', details: detailErrors })
+      }
+      throw err
+    }
+  })
+
+  // GET /notes/:id - Get single note
+  app.get('/notes/:id', async (request, reply) => {
+    const id = (request.params as { id: string }).id
+    const noteId = parseInt(id, 10)
+    const note = noteService.getNote(noteId)
+    if (!note) {
+      return reply.status(404).send({ error: 'Note not found' })
+    }
+    return reply.send(noteToDict(note))
+  })
+
+  // PATCH /notes/:id - Update note
+  app.patch('/notes/:id', async (request, reply) => {
+    const id = (request.params as { id: string }).id
+    const noteId = parseInt(id, 10)
+
+    const body = request.body as Record<string, unknown>
+    const updates: { content?: string; page_number?: string | null } = {}
+    if ('content' in body) updates.content = body.content as string
+    if ('page_number' in body) updates.page_number = body.page_number as string
+
+    const updated = noteService.updateNote(noteId, updates)
+    if (!updated) {
+      return reply.status(404).send({ error: 'Note not found' })
+    }
+    return reply.send(noteToDict(updated))
+  })
+
+  // DELETE /notes/:id - Delete note
+  app.delete('/notes/:id', async (request, reply) => {
+    const id = (request.params as { id: string }).id
+    const noteId = parseInt(id, 10)
+    const deleted = noteService.deleteNote(noteId)
+    if (deleted) {
+      return reply.send({ message: 'Note deleted', id: noteId })
+    }
+    return reply.status(404).send({ error: 'Note not found' })
+  })
+
+  // GET /entries/:entryId/notes - List notes for entry
+  app.get('/entries/:entryId/notes', async (request, reply) => {
+    const entryId = (request.params as { entryId: string }).entryId
+    const entryIdNum = parseInt(entryId, 10)
+    const entry = entryService.getEntry(entryIdNum)
+    if (!entry) {
+      return reply.status(404).send({ error: 'Entry not found' })
+    }
+    const notes = noteService.getNotesByEntry(entryIdNum)
+    return reply.send(notes.map(n => noteToDict(n)))
   })
 
   // GET /stats - Statistics
