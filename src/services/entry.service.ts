@@ -222,6 +222,32 @@ export class EntryService {
     }
   }
 
+  updateTagsForEntry(entryId: number, desiredTags: string[]): void {
+    const db = this.db()
+    const currentRows = db
+      .prepare(
+        `SELECT t.name FROM tags t
+         INNER JOIN entry_tags et ON t.id = et.tag_id
+         WHERE et.entry_id = ?
+         ORDER BY t.name`
+      )
+      .all(entryId) as { name: string }[]
+
+    const currentNames = currentRows.map((r) => r.name)
+    const normalizedDesired = desiredTags.map((t) => t.trim().toLowerCase())
+
+    const toAdd = normalizedDesired.filter((t) => !currentNames.includes(t))
+    const toRemove = currentNames.filter((t) => !normalizedDesired.includes(t))
+
+    for (const tagName of toAdd) {
+      this.addTag(entryId, tagName)
+    }
+
+    for (const tagName of toRemove) {
+      this.removeTag(entryId, tagName)
+    }
+  }
+
   getAllTags(): Array<{ id: number; name: string }> {
     return this.db()
       .prepare(`SELECT id, name FROM tags ORDER BY name`)

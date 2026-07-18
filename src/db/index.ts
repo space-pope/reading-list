@@ -34,24 +34,21 @@ export function runMigrations(dbPath?: string): void {
     )
   `)
 
-  const versionRow = dbConn
-    .prepare('SELECT MAX(version) as version FROM schema_version')
-    .get() as { version: number | null }
+  const row = dbConn.prepare('SELECT MAX(version) as version FROM schema_version').get() as { version: number | null }
+  const currentVersion = row.version ?? 0
 
-  const currentVersion = versionRow.version ?? 0
+  const migrations = [
+    { version: 1, file: 'V1_init.sql' },
+    { version: 2, file: 'V2_rename_excerpt_to_description.sql' },
+    { version: 3, file: 'V3_add_notes.sql' },
+  ]
 
-  if (currentVersion < 1) {
-    const migrationPath = join(__dirname, 'migrations', 'V1_init.sql')
-    const sql = readFileSync(migrationPath, 'utf-8')
+  for (const migration of migrations) {
+    if (currentVersion >= migration.version) continue
+
+    const sql = readFileSync(join(__dirname, 'migrations', migration.file), 'utf-8')
     dbConn.exec(sql)
-    dbConn.prepare('INSERT INTO schema_version (version) VALUES (1)').run()
-  }
-
-  if (currentVersion < 2) {
-    const migrationPath = join(__dirname, 'migrations', 'V2_rename_excerpt_to_description.sql')
-    const sql = readFileSync(migrationPath, 'utf-8')
-    dbConn.exec(sql)
-    dbConn.prepare('INSERT INTO schema_version (version) VALUES (2)').run()
+    dbConn.prepare('INSERT INTO schema_version (version) VALUES (?)').run(migration.version)
   }
 }
 

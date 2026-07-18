@@ -14,8 +14,8 @@
             <button type="button" id="initialCancelBtn" class="cancel-btn">Cancel</button>
         </div>
         <div id="loading" class="loading" style="display:none;">Loading...</div>
-        <div id="error" class="error" style="display:none;"></div>
     </form>
+    <div id="error" class="error" style="display:none;"></div>
 
     <form id="saveForm" style="display:none;">
         <div class="form-group">
@@ -25,6 +25,14 @@
         <div class="form-group">
             <label for="description">Description:</label>
             <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div class="form-group" id="addFormTagsGroup">
+            <label>Add Tags:</label>
+            <div style="display:flex;gap:var(--space-xs);align-items:center;">
+                <input type="text" id="addTagInput" class="add-tag-input" placeholder="Type a tag and press Enter" aria-label="Add a tag" maxlength="50">
+                <button type="button" id="addTagBtn" class="add-tag-add-btn">Add</button>
+            </div>
+            <ul id="addFormTagsList" class="add-form-tags-list"></ul>
         </div>
         <div class="form-actions">
             <button type="submit">Save</button>

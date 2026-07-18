@@ -26,7 +26,7 @@
 {% if entries|length > 0 %}
 <ul class="entry-list">
     {% for entry in entries %}
-    <li class="entry{% if entry.read and view == 'all' %} read{% elif not entry.read %} unread{% endif %}">
+    <li class="entry{% if entry.read and view == 'all' %} read{% elif not entry.read %} unread{% endif %}" data-entry-id="{{ entry.id }}">
         <div class="entry-content">
             <h3 class="entry-headline">
                 <a href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{ entry.title }}</a>
@@ -37,23 +37,41 @@
             <p class="entry-description entry-description--missing">[no description]</p>
             {% endif %}
             <p class="entry-url">{{ entry.url }}</p>
-            {% if entry.tags %}
             <div class="entry-meta">
+                <span class="note-count" data-entry-id="{{ entry.id }}" aria-label="{{ entry.note_count or 0 }} notes">{% if entry.note_count %}{{ entry.note_count }}{% else %}0{% endif %} note{% if (entry.note_count or 0) != 1 %}s{% endif %}</span>
+                {% if entry.tags %}
                 <span class="entry-tags">
                     {% for tag in entry.tags %}
-                    <span class="tag">{{ tag }}</span>
+                    <span class="tag{% if currentTag == tag %} tag--active{% endif %}" data-tag-name="{{ tag }}">{{ tag }}<button class="tag-remove" aria-label="Remove tag {{ tag }}">×<span class="sr-only">Remove tag {{ tag }}</span></button></span>
                     {% endfor %}
                 </span>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
         <div class="entry-footer">
             <button class="action-btn toggle-read" data-id="{{ entry.id }}" data-read="{{ entry.read }}" data-tooltip="{% if entry.read %}Mark as unread{% else %}Mark as read{% endif %}" aria-label="{% if entry.read %}Mark as unread{% else %}Mark as read{% endif %}">
                 <i class="mdi {% if entry.read %}mdi-eye-off{% else %}mdi-eye{% endif %}" aria-hidden="true"></i>
             </button>
+            <button class="action-btn toggle-notes" data-id="{{ entry.id }}" data-tooltip="Notes" aria-label="Toggle notes">
+                <i class="mdi mdi-clipboard-text"></i>
+            </button>
+            <button class="action-btn tag-btn" data-entry-id="{{ entry.id }}" data-tooltip="Add tag" aria-label="Add tag">
+                <i class="mdi mdi-tag-plus" aria-hidden="true"></i>
+            </button>
             <button class="action-btn delete-btn delete-entry" data-id="{{ entry.id }}" data-tooltip="Delete entry" aria-label="Delete entry">
                 <i class="mdi mdi-trash-can"></i>
             </button>
+        </div>
+        <div class="notes-panel hidden" data-entry-id="{{ entry.id }}">
+            <button class="notes-close" aria-label="Close notes" data-tooltip="Close"><i class="mdi mdi-close" aria-hidden="true"></i></button>
+            <ul class="notes-list"></ul>
+            <form class="notes-add-form" data-entry-id="{{ entry.id }}">
+                <textarea class="notes-textarea" placeholder="Add a note..." rows="2" aria-label="New note text"></textarea>
+                <div class="notes-add-actions">
+                    <input class="notes-page-input" type="text" placeholder="Page (optional)" aria-label="Page number" maxlength="50">
+                    <button type="submit" class="notes-add-btn">Add</button>
+                </div>
+            </form>
         </div>
     </li>
     {% endfor %}

@@ -69,6 +69,323 @@
   animation: mdi-spin 1s linear infinite;
 }
 
+/* Notes panel */
+.notes-panel {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--text-muted);
+  padding: var(--space-sm) var(--space-md) var(--space-md) var(--space-md);
+  margin-top: var(--space-xs);
+  border-radius: 4px;
+  position: relative;
+  width: 100%;
+  max-width: none;
+  flex: 0 0 100%;
+}
+
+.notes-close {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-sm);
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.15s ease;
+  z-index: 1;
+}
+
+.notes-close:hover {
+  color: var(--text-primary);
+}
+
+.notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.notes-list li {
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  position: relative;
+}
+
+.notes-list .note-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  margin-top: 2px;
+}
+
+.notes-list .note-delete-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.notes-list li:last-child {
+  border-bottom: none;
+}
+
+.notes-list .note-body {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.notes-list .note-text {
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  word-break: break-word;
+  white-space: pre-wrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.notes-list .note-text.expanded {
+  -webkit-line-clamp: unset;
+}
+
+.notes-list .note-expand {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+  margin: 2px 0;
+  display: inline;
+  line-height: 1.4;
+}
+
+.notes-list .note-meta {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.notes-list .note-edit-trigger {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.notes-list .note-edit-trigger:hover {
+  color: var(--accent);
+}
+
+.notes-list .note-delete-trigger {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.notes-list .note-delete-trigger:hover {
+  color: var(--error);
+}
+
+.notes-list .note-confirm-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+  line-height: 1.4;
+  white-space: nowrap;
+  display: inline;
+  transition: color 0.15s ease;
+}
+
+.notes-list .note-confirm-btn:hover {
+  color: var(--error);
+}
+
+.notes-list .note-cancel {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+  line-height: 1.4;
+  margin-left: var(--space-xs);
+  white-space: nowrap;
+  display: inline;
+  transition: color 0.15s ease;
+}
+
+.notes-list .note-cancel:hover {
+  color: var(--error);
+}
+
+.notes-list .note-confirm-btn:disabled,
+.notes-list .note-cancel:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.notes-list .note-edit-save,
+.notes-list .note-edit-cancel {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+  line-height: 1.4;
+  margin-left: var(--space-xs);
+  white-space: nowrap;
+  display: inline;
+  transition: color 0.15s ease;
+}
+
+.notes-list .note-edit-save:hover {
+  color: var(--accent);
+}
+
+.notes-list .note-edit-cancel:hover {
+  color: var(--error);
+}
+
+.notes-list .note-edit-save:disabled,
+.notes-list .note-edit-cancel:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.notes-list .note-edit-page-input {
+  background: var(--bg);
+  color: var(--text-primary);
+  border: 1px solid var(--text-muted);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-family: inherit;
+  width: 80px;
+  line-height: 1.4;
+}
+
+.notes-list .note-edit-page-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.notes-list .note-edit-textarea {
+  background: var(--bg);
+  color: var(--text-primary);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.4;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 4px;
+}
+
+.notes-list .note-edit-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.notes-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.notes-textarea {
+  width: 100%;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--text-muted);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.notes-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.notes-add-actions {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.notes-page-input {
+  flex: 1;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--text-muted);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.notes-page-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.notes-add-btn {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  line-height: 1.5;
+}
+
+.notes-add-btn:hover {
+  background: var(--accent-hover);
+}
+
+.notes-add-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.notes-empty {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  padding: var(--space-xs) 0;
+}
+
+.hidden {
+  display: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   :root,
   [data-theme="dark"] {
@@ -341,6 +658,7 @@ nav button:hover {
   border-bottom: 1px solid var(--text-muted);
   display: flex;
   gap: var(--space-sm);
+  flex-wrap: wrap;
 }
 
 .entry.unread {
@@ -507,6 +825,15 @@ nav button:hover {
   text-transform: uppercase;
   background: var(--tag-bg);
   color: var(--tag-text);
+  padding: 3px 8px;
+  line-height: 1.5;
+}
+
+.note-count {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--accent);
   padding: 3px 8px;
   line-height: 1.5;
 }
@@ -844,3 +1171,235 @@ nav button:hover {
     min-height: 48px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Tag Management — badges, dropdowns, and interactions
+   -------------------------------------------------------------------------- */
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Tag badge */
+.entry-tags {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.tag {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  padding: 3px 8px;
+  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 3px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.tag:hover {
+  background: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.tag--active {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.tag--active:hover {
+  background: var(--accent-hover);
+  color: var(--bg);
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  margin: 0 0 0 2px;
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.tag:hover .tag-remove {
+  opacity: 1;
+}
+
+.tag-remove:hover {
+  color: var(--error) !important;
+}
+
+/* Tag dropdown */
+.tag-dropdown {
+  position: absolute;
+  z-index: 100;
+  background: var(--bg-surface);
+  border: 1px solid var(--text-muted);
+  border-radius: 4px;
+  padding: var(--space-xs);
+  min-width: 200px;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.tag-dropdown-input {
+  width: 100%;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--text-muted);
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.tag-dropdown-input:focus {
+  border-color: var(--accent);
+}
+
+.tag-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.tag-list li {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.1s ease, color 0.1s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tag-list li:hover,
+.tag-list li.tag-list--highlighted {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.tag-dropdown-empty {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+/* Tag icon button — highlight on hover like other action buttons */
+.tag-btn:hover {
+  color: var(--accent);
+}
+
+/* Add form tags */
+.add-form-tags-list {
+  list-style: none;
+  margin: var(--space-xs) 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.add-form-tag-item {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  padding: 3px 8px;
+  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 3px;
+}
+
+.add-form-tag-remove {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  margin: 0 0 0 2px;
+  opacity: 0.6;
+  transition: opacity 0.12s ease, color 0.12s ease;
+}
+
+.add-form-tag-remove:hover {
+  opacity: 1;
+  color: var(--error) !important;
+}
+
+.add-tag-input {
+  flex: 1;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--text-muted);
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  min-width: 160px;
+}
+
+.add-tag-input:focus {
+  border-color: var(--accent);
+}
+
+.add-tag-add-btn {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.add-tag-add-btn:hover {
+  background: var(--accent-hover);
+}
+
