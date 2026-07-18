@@ -1,11 +1,13 @@
 import { Command } from 'commander'
 import { EntryService } from '../services/entry.service.js'
 import { NoteService } from '../services/note.service.js'
+import { ExportService } from '../services/export.service.js'
 import { entryToDict } from '../models/entry.js'
 import { noteToDict } from '../models/note.js'
 import { fetchAndExtract } from '../services/fetch.service.js'
 import { createInterface } from 'node:readline'
 import { ensureDbDir, getConfig } from '../config.js'
+import { writeFileSync } from 'node:fs'
 
 const program = new Command()
 const entryService = new EntryService()
@@ -324,6 +326,27 @@ program
       console.log(`[${note.id}] ${created}${page}`)
       console.log(`    ${note.content}`)
       console.log()
+    }
+  })
+
+program
+  .command('export')
+  .description('Export all entries to markdown')
+  .option('-o, --output <path>', 'Output file path (default: reading-list-export.md)')
+  .action((options) => {
+    try {
+      const exportService = new ExportService()
+      const markdown = exportService.generateExportMarkdown()
+      const outputPath = options.output || 'reading-list-export.md'
+      writeFileSync(outputPath, markdown)
+      console.log(`Exported reading list to ${outputPath}`)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error(`Error: ${err.message}`)
+      } else {
+        console.error('Error exporting reading list')
+      }
+      process.exitCode = 1
     }
   })
 

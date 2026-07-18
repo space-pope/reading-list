@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import { EntryService } from '../services/entry.service.js'
 import { NoteService } from '../services/note.service.js'
 import { fetchAndExtract } from '../services/fetch.service.js'
+import { ExportService } from '../services/export.service.js'
 import { entryToDict } from '../models/entry.js'
 import { validateEntry } from '../models/entry.js'
 import { noteToDict } from '../models/note.js'
@@ -319,5 +320,20 @@ export function registerRoutes(app: FastifyInstance): void {
   app.get('/stats', async (_request, reply) => {
     const stats = entryService.getStats()
     return reply.send(stats)
+  })
+
+  // GET /export - Export all entries to markdown
+  app.get('/export', async (_request, reply) => {
+    try {
+      const exportService = new ExportService()
+      const markdown = exportService.generateExportMarkdown()
+      return reply
+        .header('Content-Type', 'text/markdown')
+        .header('Content-Disposition', 'attachment; filename="reading-list-export.md"')
+        .send(markdown)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      return reply.status(500).send({ error: message })
+    }
   })
 }
