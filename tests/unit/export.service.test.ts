@@ -80,13 +80,10 @@ describe('ExportService', () => {
   }
 
   it('generates markdown with entries sorted newest-first', () => {
-    const db = getDatabase(dbPath)
-    db.prepare(`INSERT INTO entries (url, title, description, source_type, created_at) VALUES (?, ?, ?, 'generic', ?)`).run(
-      'http://example.com/oldest', 'Oldest Entry', '', '2026-01-01T00:00:00.000Z'
-    )
-    db.prepare(`INSERT INTO entries (url, title, description, source_type, created_at) VALUES (?, ?, ?, 'generic', ?)`).run(
-      'http://example.com/newest', 'Newest Entry', '', '2026-06-01T00:00:00.000Z'
-    )
+    const oldestId = insertEntry('http://example.com/oldest', 'Oldest Entry', '2026-01-01T00:00:00.000Z')
+    const newestId = insertEntry('http://example.com/newest', 'Newest Entry', '2026-06-01T00:00:00.000Z')
+    addNote(oldestId, 'oldest note', null, '2026-01-01T00:00:00.000Z')
+    addNote(newestId, 'newest note', null, '2026-06-01T00:00:00.000Z')
 
     const service = new ExportService()
     const markdown = service.generateExportMarkdown()
@@ -103,6 +100,7 @@ describe('ExportService', () => {
     addTag(entryId, 'zebra')
     addTag(entryId, 'alpha')
     addTag(entryId, 'mid')
+    addNote(entryId, 'a note', null, '2026-01-01T00:00:00.000Z')
 
     const service = new ExportService()
     const markdown = service.generateExportMarkdown()
@@ -111,7 +109,8 @@ describe('ExportService', () => {
   })
 
   it('shows "none" when entry has no tags', () => {
-    insertEntry('http://example.com/notagged', 'No Tags Entry', '2026-01-01T00:00:00.000Z')
+    const entryId = insertEntry('http://example.com/notagged', 'No Tags Entry', '2026-01-01T00:00:00.000Z')
+    addNote(entryId, 'a note', null, '2026-01-01T00:00:00.000Z')
 
     const service = new ExportService()
     const markdown = service.generateExportMarkdown()
@@ -140,14 +139,28 @@ describe('ExportService', () => {
     expect(markdown).not.toContain('(null)')
   })
 
-  it('exports entries with zero notes', () => {
+  it('excludes entries with zero notes', () => {
     insertEntry('http://example.com/nonotes', 'No Notes Entry', '2026-01-01T00:00:00.000Z')
 
     const service = new ExportService()
     const markdown = service.generateExportMarkdown()
 
-    expect(markdown).toContain('# No Notes Entry')
-    expect(markdown).toContain('url: http://example.com/nonotes')
+    expect(markdown).not.toContain('# No Notes Entry')
+    expect(markdown).not.toContain('http://example.com/nonotes')
+  })
+
+  it('includes only entries with one or more notes', () => {
+    const noNotesId = insertEntry('http://example.com/nonotes', 'No Notes Entry', '2026-01-01T00:00:00.000Z')
+    const withNotesId = insertEntry('http://example.com/withnotes', 'With Notes Entry', '2026-01-01T00:00:00.000Z')
+    addNote(withNotesId, 'A note', null, '2026-01-01T00:00:00.000Z')
+
+    const service = new ExportService()
+    const markdown = service.generateExportMarkdown()
+
+    expect(markdown).not.toContain('# No Notes Entry')
+    expect(markdown).toContain('# With Notes Entry')
+    expect(markdown).toContain('url: http://example.com/withnotes')
+    expect(markdown).toContain('- A note')
   })
 
   it('notes ordered oldest-first within each entry', () => {
@@ -173,7 +186,8 @@ describe('ExportService', () => {
   })
 
   it('includes URL in output', () => {
-    insertEntry('http://example.com/specific-url', 'URL Entry', '2026-01-01T00:00:00.000Z')
+    const entryId = insertEntry('http://example.com/specific-url', 'URL Entry', '2026-01-01T00:00:00.000Z')
+    addNote(entryId, 'a note', null, '2026-01-01T00:00:00.000Z')
 
     const service = new ExportService()
     const markdown = service.generateExportMarkdown()
