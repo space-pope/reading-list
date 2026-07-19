@@ -28,3 +28,15 @@ CREATE VIRTUAL TABLE IF NOT EXISTS entries_fts USING fts5(
     content='entries',
     content_rowid='id'
 );
+
+CREATE TRIGGER IF NOT EXISTS entries_ai AFTER INSERT ON entries BEGIN
+    INSERT INTO entries_fts(rowid, title, excerpt) VALUES (new.id, new.title, new.excerpt);
+END;
+
+CREATE TRIGGER IF NOT EXISTS entries_ad AFTER DELETE ON entries BEGIN
+    DELETE FROM entries_fts WHERE rowid = old.id;
+END;
+
+CREATE TRIGGER IF NOT EXISTS entries_au AFTER UPDATE ON entries BEGIN
+    UPDATE entries_fts SET title = new.title, excerpt = new.excerpt WHERE rowid = new.id;
+END;
