@@ -56,5 +56,18 @@ export async function createApp(): Promise<FastifyInstance> {
 
   registerRoutes(app)
 
+  // Minimal error handler — writes unhandled errors to stderr for docker logs
+  app.setErrorHandler((error, _request, reply) => {
+    const message = error instanceof Error ? error.message : String(error)
+    const code = (error as Record<string, unknown>).code as string | undefined
+    console.error('Unhandled error:', message, code ? `(${code})` : '')
+    if (error instanceof Error && error.stack) {
+      console.error(error.stack)
+    }
+    if (!reply.sent) {
+      reply.status(500).send({ error: 'Internal server error' })
+    }
+  })
+
   return app
 }
