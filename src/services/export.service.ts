@@ -21,6 +21,10 @@ export class ExportService {
 
       const notes = entry.id !== null ? this.noteService.getNotesByEntry(entry.id) : []
 
+      if (notes.length === 0) {
+        continue
+      }
+
       let noteSection = ''
       for (const note of notes) {
         const pageRef = note.page_number ? ` (${note.page_number})` : ''
