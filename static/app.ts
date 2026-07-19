@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const entryLi = descriptionEl.closest('li.entry')
       if (!entryLi) return
 
-      const entryId = parseInt(entryLi.dataset.id || '0', 10)
+      const entryId = parseInt(entryLi.dataset.entryId || '0', 10)
       const originalText = descriptionEl.textContent || ''
 
       // Replace text content with textarea
