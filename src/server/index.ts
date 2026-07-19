@@ -1,10 +1,12 @@
 import { createApp } from './app.js'
 import { getConfig, ensureDbDir } from '../config.js'
-import { runMigrations } from '../db/index.js'
+import { runMigrations, checkIntegrity } from '../db/index.js'
 
 async function main() {
   const config = getConfig()
+  console.log(`Starting reading-list server (db: ${config.dbPath})`)
   ensureDbDir(config.dbPath)
+  checkIntegrity(config.dbPath)
   runMigrations(config.dbPath)
 
   const app = await createApp()
