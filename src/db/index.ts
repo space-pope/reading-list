@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3'
 import { join } from 'node:path'
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { getConfig, ensureDbDir } from '../config.js'
 
 let db: Database.Database | null = null
@@ -82,13 +82,16 @@ export function runMigrations(dbPath?: string): void {
   const currentVersion = row.version ?? 0
   console.log(`Current schema version: ${currentVersion}`)
 
-  const migrations = [
-    { version: 1, file: 'V1_init.sql' },
-    { version: 2, file: 'V2_rename_excerpt_to_description.sql' },
-    { version: 3, file: 'V3_add_notes.sql' },
-  ]
+  const migrationsDir = join(__dirname, 'migrations')
+  const migrationFiles = readdirSync(migrationsDir)
+    .filter(f => /^V(\d+)_.*\.sql$/i.test(f))
+    .map(f => {
+      const match = /^V(\d+)_.*\.sql$/i.exec(f)
+      return { version: parseInt(match![1], 10), file: f }
+    })
+    .sort((a, b) => a.version - b.version)
 
-  for (const migration of migrations) {
+  for (const migration of migrationFiles) {
     if (currentVersion >= migration.version) {
       console.log(`  Skipping migration ${migration.version}: already applied`)
       continue
